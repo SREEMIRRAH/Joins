@@ -84,6 +84,16 @@ const getAllProductReviews =  async (req, res) => {
 
 }
 
+const getProductsSortedByRating = async (req, res) => {
+    try{
+        const data = await prod.getProductsSortedByRating()
+        res.status(200).json(data)
+    }catch(err){
+        res.status(500).json({error:'Failed to get all sorted products '})
+    }
+
+}
+
 module.exports = {
     addProduct,
     getAllProducts,
@@ -92,5 +102,6 @@ module.exports = {
     deleteProduct,
     getPublishedProduct,
     getProductReviews,
-    getAllProductReviews
+    getAllProductReviews,
+    getProductsSortedByRating
 }

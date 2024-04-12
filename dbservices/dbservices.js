@@ -1,8 +1,9 @@
 const { where } = require('sequelize');
-const db = require('../model')
+const db = require('../config/dbConfig')
 
 const Product = db.products
 const Review = db.reviews
+const Offer = db.offers
 
 const addProduct = async (data) =>{
     try{
@@ -80,6 +81,15 @@ const addReview = async (id,{rating,description}) =>{
    }
 }
 
+const addOffer = async(id,{offerStartDate,offerEndDate, offerPrice})=>{
+    try{
+        const offer = await Offer.create({product_id: id, offerStartDate,offerEndDate, offerPrice})
+        return offer;
+    } catch(error){
+        console.log(error)
+    }
+}
+
 const getAllReviews = async () => {
     try{
         const review = await Review.findAll({})
@@ -89,32 +99,35 @@ const getAllReviews = async () => {
     }
 }
 
-const getProductReviews = async (id) =>{
-    try{
+const getProductReviews = async (id) => {
+    try {
         const reviewProd = await Product.findOne({
-            include:[{
-                    model: Review, as:'review'
-                }]
-                ,where:{id}
-        })
+            include: [
+                { model: Review, as: 'review' },
+                { model: Offer, as: 'offer' }
+            ],
+            where: { id } // Adjust if the primary key is named differently
+        });
         return reviewProd;
-    }catch(err){
-        console.log(err)
-    }
-}
-
-const getAllProductReviews = async () =>{
-    try{
-        const reviewProd = await Product.findAll({
-            include:[{
-                    model: Review, as:'review'
-                }]
-        })
-        return reviewProd;
-    } catch(err){
+    } catch (err) {
         console.log(err);
     }
-}
+};
+
+const getAllProductReviews = async () => {
+    try {
+        const reviewProd = await Product.findAll({
+            include: [
+                { model: Review, as: 'review' },
+                { model: Offer, as: 'offer' }
+            ]
+        });
+        return reviewProd;
+    } catch (err) {
+        console.log(err);
+    }
+};
+
 module.exports = {
     addProduct,
     existingProduct,
@@ -126,5 +139,6 @@ module.exports = {
     addReview,
     getAllReviews,
     getProductReviews,
-    getAllProductReviews
+    getAllProductReviews,
+    addOffer
 }

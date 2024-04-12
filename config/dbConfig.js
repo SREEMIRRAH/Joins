@@ -1,4 +1,4 @@
-const database =  require('../config/database');
+const database =  require('./database.js');
 const {Sequelize, DataTypes} = require('sequelize');
 
 const sequelize = new Sequelize(
@@ -29,23 +29,21 @@ const db = {}
 db.Sequelize=Sequelize;
 db.sequelize=sequelize;
 
-db.products = require('./prodModel.js')(sequelize, DataTypes)
-db.reviews = require('./reviewModel.js')(sequelize, DataTypes)
+db.products = require('../model/prodModel.js')(sequelize, DataTypes)
+db.reviews = require('../model/reviewModel.js')(sequelize, DataTypes)
+db.offers = require('../model/offerModel.js')(sequelize,DataTypes)
 
 db.sequelize.sync({ force: false })
 .then(() => {
     console.log('yes re-sync done!')
 })
 
+// Define associations between Product and Review
+db.products.hasMany(db.reviews, { foreignKey: 'product_id', as:'review' });
+db.reviews.belongsTo(db.products, { foreignKey: 'product_id',as: "product"});
 
-db.products.hasMany(db.reviews, {
-    foreignKey: 'product_id',
-    as: 'review'
-})
-
-db.reviews.belongsTo(db.products, {
-    foreignKey: 'product_id',
-    as: 'product'
-})
+// Define associations between Product and Offer
+db.products.hasOne(db.offers, { foreignKey: 'product_id' ,as:'offer'});
+db.offers.belongsTo(db.products, { foreignKey: 'product_id' ,as:'product'});
 
 module.exports = db;
